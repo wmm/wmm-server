@@ -22,7 +22,12 @@ app.use('/users', userRouter);
 
 // Route not found
 app.use((req, res) => {
-    res.status(404).json('Route not found');
+    return res.status(404).json('Route not found');
+});
+
+// Error handling
+app.use(function (err, req, res, next) {
+    res.status(500).json(err);
 });
 
 module.exports = app;

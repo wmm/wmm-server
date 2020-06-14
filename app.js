@@ -27,7 +27,10 @@ app.use((req, res) => {
 
 // Error handling
 app.use(function (err, req, res, next) {
-    console.error(err);
+    if (err.status) {
+        return res.status(err.status).json(err.message);
+    }
+
     res.status(500).json();
 });
 

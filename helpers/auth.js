@@ -33,8 +33,45 @@ module.exports = {
      * @param {string} token 
      * @param {jwt.VerifyCallback} callback 
      */
-    validateToken: function (token, callback) {
-        jwt.verify(token, jwtConf.secret, { algorithm: jwtConf.algorithm }, callback)
+    validateRefreshToken: function (token, callback) {
+        jwt.verify(token, jwtConf.secret, { algorithm: jwtConf.algorithm, ignoreExpiration: true }, (err, data) => {
+            if (err) return callback(err);
+
+            if (data.exp) {
+                const err = new Error('Token is not a refresh token');
+                err.name = 'TokenInvalidError';
+                err.status = 400;
+                return callback(err);
+            }
+
+            callback(null, data);
+        });
+    },
+
+    /**
+     * @param {string} token 
+     * @param {jwt.VerifyCallback} callback 
+     */
+    validateAccessToken: function (token, callback) {
+        jwt.verify(token, jwtConf.secret, { algorithm: jwtConf.algorithm }, (err, data) => {
+            if (err) {
+                if (err.name === 'TokenExpiredError') {
+                    err.status = 400;
+                    err.message = 'Access token expired'
+                };
+
+                return callback(err);
+            }
+
+            if (!data.exp) {
+                const err = new Error('Token is not a refresh token');
+                err.name = 'TokenInvalidError';
+                err.status = 400;
+                return callback(err);
+            }
+
+            callback(null, data);
+        });
     },
 
     requireLogin: function (req, res, next) {
@@ -42,12 +79,10 @@ module.exports = {
         if (!token) return res.status(401).json('Login required');
         
         token = token.split(' ')[1];
-        module.exports.validateToken(token, (err, data) => {
+        module.exports.validateAccessToken(token, (err, data) => {
             if (err) return next(err);
 
-            if (!data.exp) return res.status(400).json('Access token required');
-
-            req.user = data.userId;
+            req.userId = data.userId;
             next();
         });
     }

@@ -81,12 +81,12 @@ module.exports = {
     },
 
     getAccessToken: function (req, res, next) {
-        const token = req.body.refresh_token;
-        if (!token) {
+        const refresh_token = req.body.refresh_token;
+        if (!refresh_token) {
             return res.status(400).json('Refresh token required');
         }
 
-        auth.validateToken(token, (err, data) => {
+        auth.validateRefreshToken(refresh_token, (err, data) => {
             if (err) return next(err);
 
             auth.generateAccessToken(data.userId, (err, token) => {
@@ -100,7 +100,22 @@ module.exports = {
     },
 
     deleteRefreshToken: function (req, res, next) {
-        return res.status(501).json();
+        const refresh_token = req.body.refresh_token;
+        if (!refresh_token) {
+            return res.status(400).json('Refresh token missing');
+        }
+
+        auth.validateRefreshToken(refresh_token, (err, data) => {
+            if (err) return next(err);
+
+            if (data.userId !== req.userId) return res.status(403).json('You do not own this token');
+
+            db.query('DELETE FROM Tokens WHERE token = ?', [refresh_token], (err) => {
+                if (err) return next(err);
+
+                return res.status(200);
+            });
+        });
     },
 
     profile: function (req, res, next) {

@@ -1,12 +1,14 @@
 const fs = require('fs');
 const mysql = require('mysql');
 
-if (!fs.existsSync('./config/db.json')) {
-    console.error('Failed to open ./config/db.json')
+const configPath = './config/db.json';
+
+if (!fs.existsSync(configPath)) {
+    console.error('Failed to open', configPath)
     process.exit(1);
 }
 
-const dbConf = JSON.parse(fs.readFileSync('./config/db.json', { encoding: 'utf-8' }));
+const dbConf = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' }));
 
 /** @type mysql.Pool */
 const pool = mysql.createPool(dbConf);

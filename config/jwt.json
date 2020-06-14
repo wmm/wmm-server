@@ -1,0 +1,5 @@
+{
+    "secret": "WMM reborn",
+    "algorithm": "HS256",
+    "expireTime": "1h"
+}

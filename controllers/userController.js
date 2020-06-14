@@ -1,5 +1,6 @@
 const db = require('../connection');
-const crypto = require('crypto');
+const auth = require('../helpers/auth');
+const bcrypt = require('bcrypt');
 
 module.exports = {
 
@@ -24,21 +25,23 @@ module.exports = {
         if (!/^[\w.#$%&@\- ]{6,}$/.test(password)) {
             return res.status(400).json('Password format: /^[\\w.#$%&@\- ]{6,}$/');
         }
-        
-        db.query('SELECT * FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
+
+        db.query('SELECT id FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
             if (err) return next(err);
 
             if (results.length > 0) {
                 return res.status(400).json('Username taken')
             }
 
-            const pw_hash = hashPassword(password);
-
-            db.query('INSERT INTO Users (username, name, email, password) VALUES (?,?,?,?)', [username, name, email, pw_hash], (err) => {
+            bcrypt.hash(password, 10, (err, pw_hash) => {
                 if (err) return next(err);
 
-                return res.status(201).json();
-            })
+                db.query('INSERT INTO Users (username, name, email, password) VALUES (?,?,?,?)', [username, name, email, pw_hash], (err) => {
+                    if (err) return next(err);
+                
+                    return res.status(201).json();
+                })
+            });
         });
     },
 
@@ -49,6 +52,54 @@ module.exports = {
             return res.status(400).json('Empty field(s): username and password required');
         }
 
+        db.query('SELECT id, password FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
+            if (err) return next(err);
+
+            if (results.length === 0) return res.status(400).json('Login data invalid');
+
+            const userId = results[0].id;
+            const userPass = results[0].password;
+
+            bcrypt.compare(password, userPass, (err, succ) => {
+                if (err) return next(err);
+
+                if (!succ) return res.status(400).json('Login data invalid');
+
+                auth.generateRefreshToken(userId, (err, token) => {
+                    if (err) return next(err);
+
+                    db.query('INSERT INTO Tokens (user_id, token) VALUES (?,?)', [userId, token], (err) => {
+                        if (err) return next(err);
+
+                        return res.status(200).json({
+                            refresh_token: token
+                        });
+                    });
+                });
+            });
+        });
+    },
+
+    getAccessToken: function (req, res, next) {
+        const token = req.body.refresh_token;
+        if (!token) {
+            return res.status(400).json('Refresh token required');
+        }
+
+        auth.validateToken(token, (err, data) => {
+            if (err) return next(err);
+
+            auth.generateAccessToken(data.userId, (err, token) => {
+                if (err) return next(err);
+
+                return res.status(200).json({
+                    access_token: token
+                });
+            });
+        });
+    },
+
+    deleteRefreshToken: function (req, res, next) {
         return res.status(501).json();
     },
 
@@ -60,9 +111,4 @@ module.exports = {
         return res.status(501).json();
     }
 
-}
-
-/** @param {string} password */
-function hashPassword(password) {
-    return crypto.createHash('sha256').update(password, 'utf8').digest('hex');
 }

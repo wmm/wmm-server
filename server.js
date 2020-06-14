@@ -1,7 +1,6 @@
 const app = require('./app');
 const debug = require('debug')('wmm-reborn:server');
 const http = require('http');
-const pool = require('./connection');
 
 
 const port = process.env.PORT || '3000';

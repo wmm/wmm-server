@@ -113,7 +113,7 @@ module.exports = {
             db.query('DELETE FROM Tokens WHERE token = ?', [refresh_token], (err) => {
                 if (err) return next(err);
 
-                return res.status(200);
+                return res.status(200).json();
             });
         });
     },

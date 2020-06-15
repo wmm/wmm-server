@@ -56,6 +56,27 @@ CREATE TRIGGER update_after_loan AFTER UPDATE ON Loans FOR EACH ROW BEGIN
             END IF;
         END IF;
 
+        /* A better way exists without selecting all */
+        SELECT IFNULL(sum(amount), 0) INTO @sender_l1 FROM Relations WHERE user1_id = new.sender_id AND amount > 0;
+        SELECT IFNULL(sum(amount), 0) INTO @sender_l2 FROM Relations WHERE user2_id = new.sender_id AND amount < 0;
+        SELECT IFNULL(sum(amount), 0) INTO @sender_b1 FROM Relations WHERE user2_id = new.sender_id AND amount > 0;
+        SELECT IFNULL(sum(amount), 0) INTO @sender_b2 FROM Relations WHERE user1_id = new.sender_id AND amount < 0;
+        SELECT IFNULL(sum(amount), 0) INTO @reciever_l1 FROM Relations WHERE user1_id = new.reciever_id AND amount > 0;
+        SELECT IFNULL(sum(amount), 0) INTO @reciever_l2 FROM Relations WHERE user2_id = new.reciever_id AND amount < 0;
+        SELECT IFNULL(sum(amount), 0) INTO @reciever_b1 FROM Relations WHERE user2_id = new.reciever_id AND amount > 0;
+        SELECT IFNULL(sum(amount), 0) INTO @reciever_b2 FROM Relations WHERE user1_id = new.reciever_id AND amount < 0;
+
+        UPDATE Users SET
+            total_lent = total_lent + new.amount,
+            current_lent = @sender_l1 - @sender_l2,
+            current_borrowed = @sender_b1 - @sender_b2
+            WHERE id = new.sender_id;
+        UPDATE Users SET
+            total_borrowed = total_borrowed + new.amount,
+            current_lent = @reciever_l1 - @reciever_l2,
+            current_borrowed = @reciever_b1 - @reciever_b2
+            WHERE id = new.reciever_id;
+
     END IF;
-END; //
+END//
 DELIMITER ;

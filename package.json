@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./server.js",
+    "service": "sudo systemctl start mysql apache2",
     "debug": "nodemon ./server.js"
   },
   "dependencies": {

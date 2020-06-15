@@ -42,10 +42,20 @@ CREATE TABLE Relations (
 
 DELIMITER //
 CREATE TRIGGER update_after_loan AFTER UPDATE ON Loans FOR EACH ROW BEGIN
-    IF old.confirmed IS NULL AND new.confirmed IS NOT NULL THEN
-        IF (SELECT count(*) AS num FROM Relations WHERE (user1_id = new.sender_id AND user2_id = new.reciever_id) OR (user1_id = new.reciever_id AND user2_id = new.reciever_id)) = 0 THEN
-            INSERT INTO Relations (user1_id, user2_id) VALUES (new.sender_id, new.reciever_id);
+    IF (old.confirmed IS NULL) AND (new.confirmed IS NOT NULL) THEN
+
+        SELECT id, user1_id INTO @id, @user1_id FROM Relations WHERE (user1_id = new.sender_id AND user2_id = new.reciever_id) OR (user1_id = new.reciever_id AND user2_id = new.sender_id);
+
+        IF @id IS NULL THEN
+            INSERT INTO Relations (user1_id, user2_id, amount) VALUES (new.sender_id, new.reciever_id, new.amount);
+        ELSE
+            IF @user1_id = new.sender_id THEN
+                UPDATE Relations SET amount = amount + new.amount WHERE id = @id;
+            ELSE
+                UPDATE Relations SET amount = amount - new.amount WHERE id = @id;
+            END IF;
         END IF;
+
     END IF;
 END; //
 DELIMITER ;

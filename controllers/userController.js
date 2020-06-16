@@ -1,7 +1,6 @@
 const db = require('../connection');
 const auth = require('../helpers/auth');
 const bcrypt = require('bcrypt');
-const { use } = require('../routes/userRoutes');
 
 module.exports = {
 

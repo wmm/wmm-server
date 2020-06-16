@@ -4,7 +4,9 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 
+const auth = require('./helpers/auth');
 const userRouter = require('./routes/userRoutes');
+const loanRouter = require('./routes/loanRoutes');
 
 const app = express();
 
@@ -19,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/users', userRouter);
+app.use('/loans', auth.requireLogin, loanRouter);
 
 // Route not found
 app.use((req, res) => {
@@ -31,6 +34,7 @@ app.use(function (err, req, res, next) {
         return res.status(err.status).json(err.message);
     }
 
+    console.error(err);
     res.status(500).json();
 });
 

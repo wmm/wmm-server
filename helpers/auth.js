@@ -57,8 +57,12 @@ module.exports = {
             if (err) {
                 if (err.name === 'TokenExpiredError') {
                     err.status = 400;
-                    err.message = 'Access token expired'
-                };
+                    err.message = 'Access token expired';
+                }
+                else if (err.name === 'JsonWebTokenError') {
+                    err.status = 400;
+                    err.message = 'Invaild token';
+                }
 
                 return callback(err);
             }

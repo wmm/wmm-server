@@ -1,6 +1,7 @@
 const db = require('../connection');
 const auth = require('../helpers/auth');
 const bcrypt = require('bcrypt');
+const { use } = require('../routes/userRoutes');
 
 module.exports = {
 
@@ -119,11 +120,30 @@ module.exports = {
     },
 
     profile: function (req, res, next) {
-        return res.status(501).json();
+        const username = req.params.username;
+        if (!username) {
+            return res.status(400).json('Username missing');
+        }
+
+        db.query('SELECT username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?', [username], (err, results) => {
+            if (err) return next(err);
+
+            if (results.length === 0) return res.status(404).json('User not found');
+
+            return res.status(200).json(results[0]);
+        });
     },
 
     profileSelf: function (req, res, next) {
-        return res.status(501).json();
+        db.query('SELECT username, name, email, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE id = ?', [req.userId], (err, results) => {
+            if (err) return next(err);
+
+            if (results.length === 0) {
+                return next(new Error('User not found with ID'));
+            }
+
+            return res.status(200).json(results[0]);
+        });
     }
 
 }

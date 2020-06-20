@@ -1,5 +1,7 @@
 USE wmm_reborn;
 
+DROP VIEW IF EXISTS PopulatedLoans;
+
 DROP TABLE IF EXISTS Relations;
 DROP TABLE IF EXISTS Loans;
 DROP TABLE IF EXISTS Tokens;
@@ -80,3 +82,9 @@ CREATE TRIGGER update_after_loan AFTER UPDATE ON Loans FOR EACH ROW BEGIN
     END IF;
 END//
 DELIMITER ;
+
+CREATE VIEW PopulatedLoans AS
+SELECT Loans.id, sender.username AS sender, reciever.username AS reciever, creator.username AS creator, Loans.amount, Loans.created, Loans.confirmed FROM Loans
+LEFT JOIN Users AS sender ON Loans.sender_id=sender.id
+LEFT JOIN Users AS reciever ON Loans.reciever_id=reciever.id
+LEFT JOIN Users AS creator ON Loans.creator_id=creator.id;

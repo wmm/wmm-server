@@ -15,18 +15,20 @@ module.exports = {
 
     /**
      * @param {string} userId
+     * @param {string} username
      * @param {jwt.SignCallback} callback
      */
-    generateRefreshToken: function (userId, callback) {
-        jwt.sign({ userId }, jwtConf.secret, { algorithm: jwtConf.algorithm }, callback)
+    generateRefreshToken: function (userId, username, callback) {
+        jwt.sign({ userId, username }, jwtConf.secret, { algorithm: jwtConf.algorithm }, callback)
     },
 
     /**
      * @param {string} userId
+     * @param {string} username
      * @param {jwt.SignCallback} callback
      */
-    generateAccessToken: function (userId, callback) {
-        jwt.sign({ userId }, jwtConf.secret, { algorithm: jwtConf.algorithm, expiresIn: jwtConf.expireTime }, callback)
+    generateAccessToken: function (userId, username, callback) {
+        jwt.sign({ userId, username }, jwtConf.secret, { algorithm: jwtConf.algorithm, expiresIn: jwtConf.expireTime }, callback)
     },
 
     /**
@@ -86,7 +88,10 @@ module.exports = {
         module.exports.validateAccessToken(token, (err, data) => {
             if (err) return next(err);
 
-            req.userId = data.userId;
+            req.user = {
+                id: data.userId,
+                username: data.username
+            };
             next();
         });
     }

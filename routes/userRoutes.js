@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 
-router.get('/token', userController.getAccessToken);
+router.post('/token', userController.getAccessToken);
 router.delete('/token', auth.requireLogin, userController.deleteRefreshToken);
 
 router.get('/profile', auth.requireLogin, userController.profileSelf);

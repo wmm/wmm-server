@@ -39,7 +39,7 @@ module.exports = {
                 db.query('INSERT INTO Users (username, name, email, password) VALUES (?,?,?,?)', [username, name, email, pw_hash], (err) => {
                     if (err) return next(err);
                 
-                    return res.status(201).json();
+                    return res.status(201).json('Account created');
                 })
             });
         });
@@ -52,12 +52,13 @@ module.exports = {
             return res.status(400).json('Empty field(s): username and password required');
         }
 
-        db.query('SELECT id, password FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
+        db.query('SELECT id, username, password FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
             if (err) return next(err);
 
             if (results.length === 0) return res.status(400).json('Login data invalid');
 
             const userId = results[0].id;
+            const username = results[0].username;
             const userPass = results[0].password;
 
             bcrypt.compare(password, userPass, (err, succ) => {
@@ -65,7 +66,7 @@ module.exports = {
 
                 if (!succ) return res.status(400).json('Login data invalid');
 
-                auth.generateRefreshToken(userId, (err, token) => {
+                auth.generateRefreshToken(userId, username, (err, token) => {
                     if (err) return next(err);
 
                     db.query('INSERT INTO Tokens (user_id, token) VALUES (?,?)', [userId, token], (err) => {
@@ -89,7 +90,7 @@ module.exports = {
         auth.validateRefreshToken(refresh_token, (err, data) => {
             if (err) return next(err);
 
-            auth.generateAccessToken(data.userId, (err, token) => {
+            auth.generateAccessToken(data.userId, data.username, (err, token) => {
                 if (err) return next(err);
 
                 return res.status(200).json({
@@ -108,12 +109,12 @@ module.exports = {
         auth.validateRefreshToken(refresh_token, (err, data) => {
             if (err) return next(err);
 
-            if (data.userId !== req.userId) return res.status(403).json('You do not own this token');
+            if (data.userId !== req.user.id) return res.status(403).json('You do not own this token');
 
             db.query('DELETE FROM Tokens WHERE token = ?', [refresh_token], (err) => {
                 if (err) return next(err);
 
-                return res.status(200).json();
+                return res.status(200).json('Token deleted');
             });
         });
     },
@@ -134,7 +135,9 @@ module.exports = {
     },
 
     profileSelf: function (req, res, next) {
-        db.query('SELECT username, name, email, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE id = ?', [req.userId], (err, results) => {
+        const userId = req.user.id;
+
+        db.query('SELECT username, name, email, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE id = ?', [userId], (err, results) => {
             if (err) return next(err);
 
             if (results.length === 0) {

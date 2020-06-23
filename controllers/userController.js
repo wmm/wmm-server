@@ -146,6 +146,26 @@ module.exports = {
 
             return res.status(200).json(results[0]);
         });
+    },
+
+    relation: function (req, res, next) {
+        const selfUsername = req.user.username;
+        const username = req.params.username;
+        if (!username) {
+            return res.status(400).json('Username missing');
+        }
+
+        if (selfUsername == username) {
+            return res.status(400).json('Cannot get relation with yourself');
+        }
+
+        db.query('SELECT IFNULL(IF(user1=?, amount, -amount), 0) AS amount FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)', [selfUsername, selfUsername, username, username, selfUsername], (err, results) => {
+            if (err) return next(err);
+
+            return res.status(200).json({
+                amount: results[0].amount
+            });
+        });
     }
 
 }

@@ -1,15 +1,7 @@
-const fs = require('fs');
 const jwt = require('jsonwebtoken');
 
-const configPath = './config/jwt.json';
-
-if (!fs.existsSync(configPath)) {
-    console.error('Failed to open', configPath)
-    process.exit(1);
-}
-
 /** @type {{secret: string, algorithm: string, expireTime: string}} */
-const jwtConf = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' }));
+const jwtConf = require('../config/jwt.json');
 
 module.exports = {
 

@@ -7,7 +7,10 @@ module.exports = {
         const limit = req.params.count || 10;
         const username = req.user.username;
 
-        db.query('SELECT * FROM PopulatedLoans WHERE sender = ? OR reciever = ? ORDER BY created DESC LIMIT ? OFFSET ?', [username, username, limit, offset], (err, results) => {
+        const query = 'SELECT * FROM PopulatedLoans WHERE sender = ? OR reciever = ? ORDER BY created DESC LIMIT ? OFFSET ?';
+        const inserts = [username, username, limit, offset];
+
+        db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);
 
             return res.status(200).json(results);
@@ -15,40 +18,36 @@ module.exports = {
     },
 
     create: function (req, res, next) {
-        const sender = req.body.sender;
-        const reciever = req.body.reciever;
+        const self = req.user;
+        const other = req.body.user;
         const amount_s = req.body.amount;
-        if (!sender || !reciever || !amount_s) {
-            return res.status(400).json('Missing field(s): sender, reciever and amount required');
+        if (!other || !amount_s) {
+            return res.status(400).json('Missing field(s): user and amount required');
         }
 
-        const amount = parseFloat(amount_s);
-        if (!amount || amount <= 0) return res.status(400).json('Invalid field: amount')
+        const amount = parseFloat(amount_s).toFixed(2);
+        if (!amount || amount == 0) return res.status(400).json('Invalid field: amount');
 
-        const userId = req.user.id;
+        if (other === self.username) return res.status(400).json('Cannot create a loan with yourself');
         
-        // TODO: Avoid callback hell
-        db.query('SELECT id FROM Users WHERE username = ?', [sender], (err, results) => {
+        const query = 'SELECT id FROM Users WHERE username = ?';
+        const inserts = [other];
+
+        db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);
-            if (results.length === 0) return res.status(400).json('Sender does not exist');
 
-            const sender_id = results[0].id;
+            if (results.length == 0) return res.status(400).json('User does not exist');
 
-            db.query('SELECT id FROM Users WHERE username = ?', [reciever], (err, results) => {
+            const other_id = results[0].id;
+
+            const query = 'INSERT INTO Loans (sender_id, reciever_id, creator_id, amount) VALUES (?,?,?,?)';
+            if (amount > 0) const inserts = [self.id, other_id, self.id, amount];
+            else const inserts = [other_id, self.id, self.id, amount];
+
+            db.query(query, inserts, (err) => {
                 if (err) return next(err);
-                if (results.length === 0) return res.status(400).json('Reciever does not exist');
-    
-                const reciever_id = results[0].id;
 
-                if (sender_id !== userId && reciever_id !== userId) return res.status(400).json('Cannot create loans between other people');
-
-                if (sender_id === reciever_id) return res.status(400).json('Cannot create a loan with yourself');
-
-                db.query('INSERT INTO Loans (sender_id, reciever_id, creator_id, amount) VALUES (?,?,?,?)', [sender_id, reciever_id, userId, amount], (err) => {
-                    if (err) return next(err);
-
-                    return res.status(201).json('Loan created');
-                });
+                return res.status(201).json('Loan created');
             });
         });
     },
@@ -57,7 +56,10 @@ module.exports = {
         const userId = req.user.id;
         const loanId = req.params.loanId;
 
-        db.query('SELECT * FROM Loans WHERE id = ?', [loanId], (err, results) => {
+        const query = 'SELECT * FROM Loans WHERE id = ?';
+        const inserts = [loanId];
+
+        db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);
 
             if (results.length === 0) return res.status(400).json('Loan does not exist');
@@ -71,7 +73,10 @@ module.exports = {
 
             if (loan.confirmed) return res.status(400).json('Loan already confirmed');
 
-            db.query('UPDATE Loans SET confirmed = CURRENT_TIMESTAMP WHERE id = ?', [loanId], (err) => {
+            const query = 'UPDATE Loans SET confirmed = CURRENT_TIMESTAMP WHERE id = ?';
+            const inserts = [loanId];
+    
+            db.query(query, inserts, (err) => {
                 if (err) return next(err);
 
                 return res.status(200).json('Loan confirmed');

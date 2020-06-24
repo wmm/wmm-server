@@ -26,7 +26,10 @@ module.exports = {
             return res.status(400).json('Invalid password');
         }
 
-        db.query('SELECT id FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
+        const query = 'SELECT id FROM Users WHERE username = ?';
+        const inserts = [username];
+
+        db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);
 
             if (results.length > 0) {
@@ -36,7 +39,10 @@ module.exports = {
             bcrypt.hash(password, 10, (err, pw_hash) => {
                 if (err) return next(err);
 
-                db.query('INSERT INTO Users (username, name, email, password) VALUES (?,?,?,?)', [username, name, email, pw_hash], (err) => {
+                const query = 'INSERT INTO Users (username, name, email, password) VALUES (?,?,?,?)';
+                const inserts = [username, name, email, pw_hash];
+
+                db.query(query, inserts, (err) => {
                     if (err) return next(err);
                 
                     return res.status(201).json('Account created');
@@ -52,7 +58,10 @@ module.exports = {
             return res.status(400).json('Empty field(s): username and password required');
         }
 
-        db.query('SELECT id, username, password FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
+        const query = 'SELECT id, username, password FROM Users WHERE username = ?';
+        const inserts = [username];
+
+        db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);
 
             if (results.length === 0) return res.status(400).json('Login data invalid');
@@ -69,7 +78,10 @@ module.exports = {
                 auth.generateRefreshToken(userId, username, (err, token) => {
                     if (err) return next(err);
 
-                    db.query('INSERT INTO Tokens (user_id, token) VALUES (?,?)', [userId, token], (err) => {
+                    const query = 'INSERT INTO Tokens (user_id, token) VALUES (?,?)';
+                    const inserts = [userId, token];
+            
+                    db.query(query, inserts, (err) => {
                         if (err) return next(err);
 
                         return res.status(200).json({
@@ -111,7 +123,10 @@ module.exports = {
 
             if (data.userId !== req.user.id) return res.status(403).json('You do not own this token');
 
-            db.query('DELETE FROM Tokens WHERE token = ?', [refresh_token], (err) => {
+            const query = 'DELETE FROM Tokens WHERE token = ?';
+            const inserts = [refresh_token];
+
+            db.query(query, inserts, (err) => {
                 if (err) return next(err);
 
                 return res.status(200).json('Token deleted');
@@ -125,7 +140,10 @@ module.exports = {
             return res.status(400).json('Username missing');
         }
 
-        db.query('SELECT username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
+        const query = 'SELECT username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?';
+        const inserts = [username];
+
+        db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);
 
             if (results.length === 0) return res.status(404).json('User not found');
@@ -137,7 +155,10 @@ module.exports = {
     profileSelf: function (req, res, next) {
         const userId = req.user.id;
 
-        db.query('SELECT username, name, email, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE id = ?', [userId], (err, /** @type array */ results) => {
+        const query = 'SELECT username, name, email, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE id = ?';
+        const inserts = [userId];
+
+        db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);
 
             if (results.length === 0) {
@@ -159,7 +180,10 @@ module.exports = {
             return res.status(400).json('Cannot get relation with yourself');
         }
 
-        db.query('SELECT IFNULL(IF(user1=?, amount, -amount), 0) AS amount FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)', [selfUsername, selfUsername, username, username, selfUsername], (err, /** @type array */ results) => {
+        const query = 'SELECT IFNULL(IF(user1=?, amount, -amount), 0) AS amount FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)';
+        const inserts = [selfUsername, selfUsername, username, username, selfUsername];
+
+        db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);
 
             return res.status(200).json({

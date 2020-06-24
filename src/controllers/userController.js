@@ -1,4 +1,4 @@
-const db = require('../connection');
+const db = require('../database');
 const auth = require('../helpers/auth');
 const bcrypt = require('bcrypt');
 
@@ -14,16 +14,16 @@ module.exports = {
         }
 
         if (!/^[\w.]{5,20}$/.test(username)) {
-            return res.status(400).json('Username format: /^[\\w.]{5,20}$/');
+            return res.status(400).json('Invalid username');
         }
-        if (!/^[a-zA-Z][a-zA-Z ]*$/.test(name)) {
-            return res.status(400).json('Name format: /^[a-zA-Z][a-zA-Z ]*$/');
+        if (!/^[a-zA-Z]+( [a-zA-Z]+)*$/.test(name)) {
+            return res.status(400).json('Invalid name');
         }
         if (!/^((?!.*\.\.)(?!\.)(?!.*\.@)([a-zA-Z\d\.\+\_$#!&%?-]+)@(((?!-)(?!.*-\.)([a-zA-Z\d-]+)\.([a-z]{2,8})(\.[a-z]{2,8})?)|(\[(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\])))$/.test(email)) {
             return res.status(400).json('Invalid email');
         }
         if (!/^[\w.#$%&@\- ]{6,}$/.test(password)) {
-            return res.status(400).json('Password format: /^[\\w.#$%&@\- ]{6,}$/');
+            return res.status(400).json('Invalid password');
         }
 
         db.query('SELECT id FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
@@ -125,7 +125,7 @@ module.exports = {
             return res.status(400).json('Username missing');
         }
 
-        db.query('SELECT username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?', [username], (err, results) => {
+        db.query('SELECT username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?', [username], (err, /** @type array */ results) => {
             if (err) return next(err);
 
             if (results.length === 0) return res.status(404).json('User not found');
@@ -137,7 +137,7 @@ module.exports = {
     profileSelf: function (req, res, next) {
         const userId = req.user.id;
 
-        db.query('SELECT username, name, email, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE id = ?', [userId], (err, results) => {
+        db.query('SELECT username, name, email, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE id = ?', [userId], (err, /** @type array */ results) => {
             if (err) return next(err);
 
             if (results.length === 0) {
@@ -159,7 +159,7 @@ module.exports = {
             return res.status(400).json('Cannot get relation with yourself');
         }
 
-        db.query('SELECT IFNULL(IF(user1=?, amount, -amount), 0) AS amount FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)', [selfUsername, selfUsername, username, username, selfUsername], (err, results) => {
+        db.query('SELECT IFNULL(IF(user1=?, amount, -amount), 0) AS amount FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)', [selfUsername, selfUsername, username, username, selfUsername], (err, /** @type array */ results) => {
             if (err) return next(err);
 
             return res.status(200).json({

@@ -1,11 +1,13 @@
 {
   "name": "wmm-reborn",
   "version": "0.1.0",
+  "author": "Jakob Kordež",
+  "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node ./server.js",
-    "service": "sudo systemctl start mysql apache2",
-    "debug": "nodemon ./server.js"
+    "start": "node ./src/server.js",
+    "service": "sudo service mysql start",
+    "dev": "nodemon ./src/server.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",

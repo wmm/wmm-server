@@ -16,4 +16,5 @@ router.get('/profile/:username', userController.profile);
 
 router.get('/relation/:username', auth.requireLogin, userController.relation);
 
+
 module.exports = router;

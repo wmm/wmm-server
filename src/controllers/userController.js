@@ -102,13 +102,25 @@ module.exports = {
         auth.validateRefreshToken(refresh_token, (err, data) => {
             if (err) return next(err);
 
-            auth.generateAccessToken(data.userId, data.username, (err, token) => {
+            const query = 'SELECT user_id FROM Tokens WHERE token = ?';
+            const inserts = [refresh_token];
+
+            db.query(query, inserts, (err, /** @type {Array} */ results) => {
                 if (err) return next(err);
 
-                return res.status(200).json({
-                    access_token: token
+                if (results.length == 0 || results[0].user_id != data.userId) {
+                    return res.status(400).json('Token is no longer valid');
+                }
+
+                auth.generateAccessToken(data.userId, data.username, (err, token) => {
+                    if (err) return next(err);
+    
+                    return res.status(200).json({
+                        access_token: token
+                    });
                 });
             });
+
         });
     },
 

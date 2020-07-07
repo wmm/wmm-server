@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const app = require('./app');
 const debug = require('debug')('wmm-reborn:server');
 const http = require('http');

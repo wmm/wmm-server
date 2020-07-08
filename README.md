@@ -1,6 +1,6 @@
 # Where's my money? - Reborn
 
-A new version for a collage project, with the aim of tracking loans between friends and colleagues.
+A platform with the aim of tracking loans between friends and colleagues.
 
 ## Setup
 You will need NPM and Node.Js for running the API and a MySQL database.

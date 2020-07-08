@@ -25,3 +25,4 @@ These endpoints require an access token as a Bearer token in the request header
 * [Get your loans](loans/get.md) : `GET /loans/`
 * [Create a loan](loans/post.md) : `POST /loans/`
 + [Confirm a loan](loans/loanId/confirm.md) : `PATCH /loans/:loanId/confirm`
++ [Reject a loan](loans/loanId/reject.md) : `PATCH /loans/:loanId/reject`

@@ -33,7 +33,8 @@ CREATE TABLE Loans (
     creator_id int NOT NULL, FOREIGN KEY (creator_id) REFERENCES Users(id),
     amount double NOT NULL,
     created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    confirmed timestamp
+    status int NOT NULL DEFAULT 0,
+    modified timestamp
 );
 
 CREATE TABLE Relations (
@@ -45,7 +46,7 @@ CREATE TABLE Relations (
 
 DELIMITER //
 CREATE TRIGGER update_after_loan AFTER UPDATE ON Loans FOR EACH ROW BEGIN
-    IF (old.confirmed IS NULL) AND (new.confirmed IS NOT NULL) THEN
+    IF (old.status = 0) AND (new.status = 1) THEN
 
         SELECT id, user1_id INTO @id, @user1_id FROM Relations WHERE (user1_id = new.sender_id AND user2_id = new.reciever_id) OR (user1_id = new.reciever_id AND user2_id = new.sender_id);
 
@@ -79,13 +80,14 @@ CREATE TRIGGER update_after_loan AFTER UPDATE ON Loans FOR EACH ROW BEGIN
             current_lent = @reciever_l1 - @reciever_l2,
             current_borrowed = @reciever_b1 - @reciever_b2
             WHERE id = new.reciever_id;
+        UPDATE Loans SET modified = CURRENT_TIMESTAMP WHERE id = new.id;
 
     END IF;
 END//
 DELIMITER ;
 
 CREATE VIEW PopulatedLoans AS
-SELECT Loans.id, sender.username AS sender, reciever.username AS reciever, creator.username AS creator, Loans.amount, Loans.created, Loans.confirmed FROM Loans
+SELECT Loans.id, sender.username AS sender, reciever.username AS reciever, creator.username AS creator, Loans.amount, Loans.created, Loans.status, Loans.modified FROM Loans
 LEFT JOIN Users AS sender ON Loans.sender_id=sender.id
 LEFT JOIN Users AS reciever ON Loans.reciever_id=reciever.id
 LEFT JOIN Users AS creator ON Loans.creator_id=creator.id;

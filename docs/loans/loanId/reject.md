@@ -1,8 +1,8 @@
-# Confirm a loan
+# Reject a loan
 
-Used to confirm an existing loan.
+Used to reject an existing loan.
 
-**URL** : `/loans/:loanId/confirm`
+**URL** : `/loans/:loanId/reject`
 
 **URL Parameters** : `loanId=[integer]` loan id.
 
@@ -16,7 +16,7 @@ Used to confirm an existing loan.
 
 **Code** : `200 OK`
 
-**Content** : `"Loan confirmed"`
+**Content** : `"Loan rejected"`
 
 ## Error Responses
 
@@ -33,14 +33,6 @@ Used to confirm an existing loan.
 **Code** : `403 Forbiden`
 
 **Content** : `"You can not access other peoples loans"`
-
-### OR
-
-**Condition** : If the user created the loan.
-
-**Code** : `400 Bad Request`
-
-**Content** : `"You cannot confirm a loan you created"`
 
 ### OR
 

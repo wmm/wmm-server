@@ -3,12 +3,17 @@ const db = require('../database');
 module.exports = {
 
     getLoans: function (req, res, next) {
-        const offset = req.params.start || 0;
-        const limit = req.params.count || 10;
+        const offset = req.query.start;
+        const limit = req.query.count || 10;
         const username = req.user.username;
 
-        const query = 'SELECT * FROM PopulatedLoans WHERE sender = ? OR reciever = ? ORDER BY created DESC LIMIT ? OFFSET ?';
-        const inserts = [username, username, limit, offset];
+        let inserts = [username, username, limit];
+        let qOffset = '';
+        if (offset != null) {
+            qOffset = 'AND id < ?';
+            inserts.splice(2, 0, offset);
+        }
+        const query = `SELECT * FROM PopulatedLoans WHERE (sender = ? OR reciever = ?) ${qOffset} ORDER BY created DESC LIMIT ?`;
 
         db.query(query, inserts, (err, /** @type {Array} */ results) => {
             if (err) return next(err);

@@ -34,7 +34,7 @@ module.exports = {
             if (data.exp) {
                 const err = new Error('Token is not a refresh token');
                 err.name = 'TokenInvalidError';
-                err.status = 400;
+                err.status = 401;
                 return callback(err);
             }
 
@@ -50,11 +50,11 @@ module.exports = {
         jwt.verify(token, jwtConf.secret, { algorithm: jwtConf.algorithm }, (err, data) => {
             if (err) {
                 if (err.name === 'TokenExpiredError') {
-                    err.status = 400;
+                    err.status = 401;
                     err.message = 'Access token expired';
                 }
                 else if (err.name === 'JsonWebTokenError') {
-                    err.status = 400;
+                    err.status = 401;
                     err.message = 'Invaild token';
                 }
 
@@ -64,7 +64,7 @@ module.exports = {
             if (!data.exp) {
                 const err = new Error('Token is not a refresh token');
                 err.name = 'TokenInvalidError';
-                err.status = 400;
+                err.status = 401;
                 return callback(err);
             }
 

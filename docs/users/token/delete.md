@@ -10,6 +10,8 @@ Used to delete a refresh token from the database.
 
 **Permissions required** : Refresh token must belong to user
 
+**Data constraints** : `{"refresh_token": "[refresh token]"}`
+
 ## Success Response
 
 **Code** : `200 OK`

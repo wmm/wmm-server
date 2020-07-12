@@ -3,8 +3,8 @@ const db = require('../database');
 module.exports = {
 
     getLoans: function (req, res, next) {
-        const offset = req.query.start;
-        const limit = req.query.count || 10;
+        const offset = parseInt(req.query.start);
+        const limit = parseInt(req.query.count) || 10;
         const username = req.user.username;
 
         let inserts = [username, username, limit];

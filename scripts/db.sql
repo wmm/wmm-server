@@ -34,7 +34,7 @@ CREATE TABLE Loans (
     amount double NOT NULL,
     created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status int NOT NULL DEFAULT 0,
-    modified timestamp
+    modified timestamp on update CURRENT_TIMESTAMP NULL DEFAULT NULL
 );
 
 CREATE TABLE Relations (
@@ -80,7 +80,6 @@ CREATE TRIGGER update_after_loan AFTER UPDATE ON Loans FOR EACH ROW BEGIN
             current_lent = @reciever_l1 - @reciever_l2,
             current_borrowed = @reciever_b1 - @reciever_b2
             WHERE id = new.reciever_id;
-        UPDATE Loans SET modified = CURRENT_TIMESTAMP WHERE id = new.id;
 
     END IF;
 END//

@@ -29,7 +29,10 @@ module.exports = {
      */
     validateRefreshToken: function (token, callback) {
         jwt.verify(token, jwtConf.secret, { algorithm: jwtConf.algorithm, ignoreExpiration: true }, (err, data) => {
-            if (err) return callback(err);
+            if (err) {
+                err.status = 401;
+                return callback(err);
+            }
 
             if (data.exp) {
                 const err = new Error('Token is not a refresh token');
@@ -49,15 +52,7 @@ module.exports = {
     validateAccessToken: function (token, callback) {
         jwt.verify(token, jwtConf.secret, { algorithm: jwtConf.algorithm }, (err, data) => {
             if (err) {
-                if (err.name === 'TokenExpiredError') {
-                    err.status = 401;
-                    err.message = 'Access token expired';
-                }
-                else if (err.name === 'JsonWebTokenError') {
-                    err.status = 401;
-                    err.message = 'Invaild token';
-                }
-
+                err.status = 401;
                 return callback(err);
             }
 

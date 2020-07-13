@@ -94,6 +94,6 @@ LEFT JOIN Users AS reciever ON Loans.reciever_id=reciever.id
 LEFT JOIN Users AS creator ON Loans.creator_id=creator.id;
 
 CREATE VIEW PopulatedRelations AS
-SELECT user1.username AS user1, user2.username AS user2, Relations.amount, Relations.status FROM Relations
+SELECT Relations.id, user1.username AS user1, user2.username AS user2, Relations.amount, Relations.status FROM Relations
 LEFT JOIN Users AS user1 ON Relations.user1_id=user1.id
 LEFT JOIN Users AS user2 ON Relations.user2_id=user2.id;

@@ -29,12 +29,10 @@ module.exports = {
         const query = 'SELECT id FROM Users WHERE username = ?';
         const inserts = [username];
 
-        db.query(query, inserts, (err, /** @type {Array} */ results) => {
+        db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            if (results.length > 0) {
-                return res.status(400).json('Username taken')
-            }
+            if (results[0]) return res.status(400).json('Username taken');
 
             bcrypt.hash(password, 10, (err, pw_hash) => {
                 if (err) return next(err);
@@ -61,14 +59,15 @@ module.exports = {
         const query = 'SELECT id, username, password FROM Users WHERE username = ?';
         const inserts = [username];
 
-        db.query(query, inserts, (err, /** @type {Array} */ results) => {
+        db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            if (results.length === 0) return res.status(400).json('Login data invalid');
+            const result = results[0];
+            if (!result) return res.status(400).json('Login data invalid');
 
-            const userId = results[0].id;
-            const username = results[0].username;
-            const userPass = results[0].password;
+            const userId = result.id;
+            const username = result.username;
+            const userPass = result.password;
 
             bcrypt.compare(password, userPass, (err, succ) => {
                 if (err) return next(err);
@@ -105,10 +104,11 @@ module.exports = {
             const query = 'SELECT user_id FROM Tokens WHERE token = ?';
             const inserts = [refresh_token];
 
-            db.query(query, inserts, (err, /** @type {Array} */ results) => {
+            db.query(query, inserts, (err, results) => {
                 if (err) return next(err);
 
-                if (results.length == 0 || results[0].user_id != data.userId) {
+                const result = results[0];
+                if (!result || result.user_id != data.userId) {
                     return res.status(400).json('Token is no longer valid');
                 }
 
@@ -138,7 +138,7 @@ module.exports = {
             const query = 'DELETE FROM Tokens WHERE token = ?';
             const inserts = [refresh_token];
 
-            db.query(query, inserts, (err) => {
+            db.query(query, inserts, err => {
                 if (err) return next(err);
 
                 return res.status(200).json('Token deleted');
@@ -158,7 +158,7 @@ module.exports = {
         db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            const ret = results[0];
+            const ret = Object.assign({}, results[0]);
             if (!ret) return res.status(404).json('User not found');
 
             delete ret.id;
@@ -191,14 +191,13 @@ module.exports = {
         const query = 'SELECT username, name, email, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE id = ?';
         const inserts = [userId];
 
-        db.query(query, inserts, (err, /** @type {Array} */ results) => {
+        db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            if (results.length === 0) {
-                return next(new Error('User not found with ID'));
-            }
+            const result = results[0];
+            if (!result) return next(new Error('User not found with ID'));
 
-            return res.status(200).json(results[0]);
+            return res.status(200).json(result);
         });
     }
 

@@ -12,7 +12,7 @@ router.post('/token', userController.getAccessToken);
 router.delete('/token', auth.requireLogin, userController.deleteRefreshToken);
 
 router.get('/profile', auth.requireLogin, userController.profileSelf);
-router.get('/profile/:username', userController.profile);
+router.get('/profile/:username', auth.optionalLogin, userController.profile);
 
 
 module.exports = router;

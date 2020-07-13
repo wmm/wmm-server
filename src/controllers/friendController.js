@@ -1,3 +1,5 @@
+const db = require('../database');
+
 module.exports = {
 
     friends: function (req, res, next) {
@@ -30,38 +32,43 @@ module.exports = {
         const self = req.user.username;
         const username = req.params.username;
 
+        if (self == username) return res.status(400).json();
+
         const query = 'SELECT id, user1, status FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)';
-        const inserts = [self, username, self, self, username];
+        const inserts = [username, self, self, username];
 
         db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
             const result = results[0];
             if (!result) {
-                const query = 'INSERT INTO Relations (user1_id, user2_id, status) VALUES ((SELECT id FROM Users WHERE username = ?), (SELECT id FROM Users WHERE username = ?), 1)';
-                const inserts = [self, username];
-
-                db.query(query, inserts, (err, results) => {
+                return db.query('SELECT id FROM Users WHERE username = ?', [username], (err, results) => {
                     if (err) return next(err);
-        
-                    // TODO: remove
-                    console.log(results);
-                    return res.status(200).json('Friend request sent');
+
+                    const result = results[0];
+                    if (!result) return res.status(404).json('User not found');
+
+                    const query = 'INSERT INTO Relations (user1_id, user2_id, status) VALUES (?, ?, 1)';
+                    const inserts = [req.user.id, result.id];
+    
+                    return db.query(query, inserts, err => {
+                        if (err) return next(err);
+            
+                        return res.status(200).json('Friend request sent');
+                    });
                 });
             }
 
             const status = result.user1 == self ? result.status : ((result.status&1)<<1)|((result.status&2)>>1);
-            if (status == 3) return res.status(200).status('You are already friends');
-            if (status == 1) return res.status(200).status('Friend request already sent');
+            if (status == 3) return res.status(200).json('You are already friends');
+            if (status == 1) return res.status(200).json('Friend request already sent');
 
             const query = 'UPDATE Relations SET status = status | ? WHERE id = ?';
             const inserts = [(result.user1 == self ? 1 : 2), result.id];
 
-            db.query(query, inserts, (err, results) => {
+            db.query(query, inserts, err => {
                 if (err) return next(err);
     
-                // TODO: remove
-                console.log(results);
                 return res.status(200).json(status == 0 ? 'Friend request sent' : 'Friend added');
             });
         });
@@ -70,6 +77,8 @@ module.exports = {
     remove: function (req, res, next) {
         const self = req.user.username;
         const username = req.params.username;
+
+        if (self == username) return res.status(400).json();
 
         const query = 'SELECT id, user1, status FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)';
         const inserts = [username, self, self, username];

@@ -28,6 +28,7 @@ CREATE TABLE Tokens (
 
 CREATE TABLE Loans (
     id int PRIMARY KEY auto_increment,
+    title text,
     sender_id int NOT NULL, FOREIGN KEY (sender_id) REFERENCES Users(id),
     reciever_id int NOT NULL, FOREIGN KEY (reciever_id) REFERENCES Users(id),
     creator_id int NOT NULL, FOREIGN KEY (creator_id) REFERENCES Users(id),
@@ -41,7 +42,8 @@ CREATE TABLE Relations (
     id int PRIMARY KEY auto_increment,
     user1_id int NOT NULL, FOREIGN KEY (user1_id) REFERENCES Users(id),
     user2_id int NOT NULL, FOREIGN KEY (user2_id) REFERENCES Users(id),
-    amount double NOT NULL DEFAULT 0
+    amount double NOT NULL DEFAULT 0,
+    status int NOT NULL DEFAULT 0
 );
 
 DELIMITER //
@@ -86,12 +88,12 @@ END//
 DELIMITER ;
 
 CREATE VIEW PopulatedLoans AS
-SELECT Loans.id, sender.username AS sender, reciever.username AS reciever, creator.username AS creator, Loans.amount, Loans.created, Loans.status, Loans.modified FROM Loans
+SELECT Loans.id, Loans.title, sender.username AS sender, reciever.username AS reciever, creator.username AS creator, Loans.amount, Loans.created, Loans.status, Loans.modified FROM Loans
 LEFT JOIN Users AS sender ON Loans.sender_id=sender.id
 LEFT JOIN Users AS reciever ON Loans.reciever_id=reciever.id
 LEFT JOIN Users AS creator ON Loans.creator_id=creator.id;
 
 CREATE VIEW PopulatedRelations AS
-SELECT user1.username AS user1, user2.username AS user2, Relations.amount FROM Relations
+SELECT user1.username AS user1, user2.username AS user2, Relations.amount, Relations.status FROM Relations
 LEFT JOIN Users AS user1 ON Relations.user1_id=user1.id
 LEFT JOIN Users AS user2 ON Relations.user2_id=user2.id;

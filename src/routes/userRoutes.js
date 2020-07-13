@@ -14,7 +14,5 @@ router.delete('/token', auth.requireLogin, userController.deleteRefreshToken);
 router.get('/profile', auth.requireLogin, userController.profileSelf);
 router.get('/profile/:username', userController.profile);
 
-router.get('/relation/:username', auth.requireLogin, userController.relation);
-
 
 module.exports = router;

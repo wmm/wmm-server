@@ -24,6 +24,7 @@ module.exports = {
 
     create: function (req, res, next) {
         const self = req.user;
+        const title = req.title;
         const other = req.body.user;
         const amount_s = req.body.amount;
         if (!other || !amount_s) {
@@ -45,10 +46,10 @@ module.exports = {
 
             const other_id = results[0].id;
 
-            const query = 'INSERT INTO Loans (sender_id, reciever_id, creator_id, amount) VALUES (?,?,?,?)';
+            const query = 'INSERT INTO Loans (title, sender_id, reciever_id, creator_id, amount) VALUES (?,?,?,?,?)';
             let inserts;
-            if (amount > 0) inserts = [self.id, other_id, self.id, amount];
-            else inserts = [other_id, self.id, self.id, -amount];
+            if (amount > 0) inserts = [title, self.id, other_id, self.id, amount];
+            else inserts = [title, other_id, self.id, self.id, -amount];
 
             db.query(query, inserts, (err) => {
                 if (err) return next(err);

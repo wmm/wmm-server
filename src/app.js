@@ -7,6 +7,7 @@ const cors = require('cors');
 const auth = require('./helpers/auth');
 const userRouter = require('./routes/userRoutes');
 const loanRouter = require('./routes/loanRoutes');
+const friendRouter = require('./routes/friendRoutes');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.use('/users', userRouter);
 app.use('/loans', auth.requireLogin, loanRouter);
+app.use('/friends', auth.requireLogin, friendRouter);
 
 // Route not found
 app.use((req, res) => {

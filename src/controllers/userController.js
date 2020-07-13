@@ -152,15 +152,36 @@ module.exports = {
             return res.status(400).json('Username missing');
         }
 
-        const query = 'SELECT username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?';
+        const query = 'SELECT id, username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?';
         const inserts = [username];
 
-        db.query(query, inserts, (err, /** @type {Array} */ results) => {
+        db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            if (results.length === 0) return res.status(404).json('User not found');
+            const ret = results[0];
+            if (!ret) return res.status(404).json('User not found');
 
-            return res.status(200).json(results[0]);
+            delete ret.id;
+            if (!req.user || req.user.id == results[0].id) return res.status(200).json(ret);
+
+            const query = 'SELECT user1, amount, status FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)';
+            const inserts = [req.user.username, req.user.username, username, username, req.user.username];
+    
+            db.query(query, inserts, (err, results) => {
+                if (err) return next(err);
+
+                const result = results[0];
+                let obj;
+                if (!result) obj = { status: 0, amount: 0 };
+                else {
+                    obj = {
+                        status: result.user1 == self ? result.status : ((result.status&1)<<1)|((result.status&2)>>1),
+                        amount: result.user1 == self ? result.amount : -result.amount
+                    };
+                }
+    
+                return res.status(200).json(Object.assign(ret, { relation: obj }));
+            });
         });
     },
 
@@ -178,29 +199,6 @@ module.exports = {
             }
 
             return res.status(200).json(results[0]);
-        });
-    },
-
-    relation: function (req, res, next) {
-        const selfUsername = req.user.username;
-        const username = req.params.username;
-        if (!username) {
-            return res.status(400).json('Username missing');
-        }
-
-        if (selfUsername == username) {
-            return res.status(400).json('Cannot get relation with yourself');
-        }
-
-        const query = 'SELECT IFNULL(IF(user1=?, amount, -amount), 0) AS amount FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)';
-        const inserts = [selfUsername, selfUsername, username, username, selfUsername];
-
-        db.query(query, inserts, (err, /** @type {Array} */ results) => {
-            if (err) return next(err);
-
-            return res.status(200).json({
-                amount: results[0].amount
-            });
         });
     }
 

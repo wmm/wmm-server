@@ -1,13 +1,12 @@
 const jwt = require('jsonwebtoken');
 
-/** @type {{secret: string, algorithm: string, expireTime: string}} */
-const jwtConf = require('../config/jwt.json');
+const jwtConf = require('./config/jwt.json');
 
 module.exports = {
 
     /**
-     * @param {string} userId
-     * @param {string} username
+     * @param {String} userId
+     * @param {String} username
      * @param {jwt.SignCallback} callback
      */
     generateRefreshToken: function (userId, username, callback) {
@@ -15,8 +14,8 @@ module.exports = {
     },
 
     /**
-     * @param {string} userId
-     * @param {string} username
+     * @param {String} userId
+     * @param {String} username
      * @param {jwt.SignCallback} callback
      */
     generateAccessToken: function (userId, username, callback) {
@@ -24,7 +23,7 @@ module.exports = {
     },
 
     /**
-     * @param {string} token 
+     * @param {String} token 
      * @param {jwt.VerifyCallback} callback 
      */
     validateRefreshToken: function (token, callback) {
@@ -46,7 +45,7 @@ module.exports = {
     },
 
     /**
-     * @param {string} token 
+     * @param {String} token 
      * @param {jwt.VerifyCallback} callback 
      */
     validateAccessToken: function (token, callback) {
@@ -66,37 +65,5 @@ module.exports = {
             callback(null, data);
         });
     },
-
-    requireLogin: function (req, res, next) {
-        let token = req.headers.authorization;
-        if (!token) return res.status(401).json('Login required');
-        
-        token = token.split(' ')[1];
-        module.exports.validateAccessToken(token, (err, data) => {
-            if (err) return next(err);
-
-            req.user = {
-                id: data.userId,
-                username: data.username
-            };
-            next();
-        });
-    },
-
-    optionalLogin: function (req, res, next) {
-        let token = req.headers.authorization;
-        if (!token) return next();
-        
-        token = token.split(' ')[1];
-        module.exports.validateAccessToken(token, (err, data) => {
-            if (err) return next(err);
-
-            req.user = {
-                id: data.userId,
-                username: data.username
-            };
-            next();
-        });
-    }
 
 }

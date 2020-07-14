@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 
-const auth = require('./helpers/auth');
+const auth = require('./routes/auth');
 const userRouter = require('./routes/userRoutes');
 const loanRouter = require('./routes/loanRoutes');
 const friendRouter = require('./routes/friendRoutes');

@@ -1,5 +1,5 @@
 const db = require('../database');
-const auth = require('../helpers/auth');
+const jwt = require('../jwt');
 const bcrypt = require('bcrypt');
 
 module.exports = {
@@ -74,7 +74,7 @@ module.exports = {
 
                 if (!succ) return res.status(400).json('Login data invalid');
 
-                auth.generateRefreshToken(userId, username, (err, token) => {
+                jwt.generateRefreshToken(userId, username, (err, token) => {
                     if (err) return next(err);
 
                     const query = 'INSERT INTO Tokens (user_id, token) VALUES (?,?)';
@@ -98,7 +98,7 @@ module.exports = {
             return res.status(400).json('Refresh token required');
         }
 
-        auth.validateRefreshToken(refresh_token, (err, data) => {
+        jwt.validateRefreshToken(refresh_token, (err, data) => {
             if (err) return next(err);
 
             const query = 'SELECT user_id FROM Tokens WHERE token = ?';
@@ -112,7 +112,7 @@ module.exports = {
                     return res.status(400).json('Token is no longer valid');
                 }
 
-                auth.generateAccessToken(data.userId, data.username, (err, token) => {
+                jwt.generateAccessToken(data.userId, data.username, (err, token) => {
                     if (err) return next(err);
     
                     return res.status(200).json({
@@ -130,7 +130,7 @@ module.exports = {
             return res.status(400).json('Refresh token missing');
         }
 
-        auth.validateRefreshToken(refresh_token, (err, data) => {
+        jwt.validateRefreshToken(refresh_token, (err, data) => {
             if (err) return next(err);
 
             if (data.userId !== req.user.id) return res.status(403).json('You do not own this token');
@@ -147,25 +147,25 @@ module.exports = {
     },
 
     profile: function (req, res, next) {
+        const self = req.user.username;
         const username = req.params.username;
         if (!username) {
             return res.status(400).json('Username missing');
         }
 
-        const query = 'SELECT id, username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?';
+        const query = 'SELECT username, name, total_lent, total_borrowed, current_lent, current_borrowed FROM Users WHERE username = ?';
         const inserts = [username];
 
         db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            const ret = Object.assign({}, results[0]);
+            const ret = results[0];
             if (!ret) return res.status(404).json('User not found');
 
-            delete ret.id;
-            if (!req.user || req.user.id == results[0].id) return res.status(200).json(ret);
+            if (!self || self == ret.username) return res.status(200).json(ret);
 
             const query = 'SELECT user1, amount, status FROM PopulatedRelations WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)';
-            const inserts = [req.user.username, req.user.username, username, username, req.user.username];
+            const inserts = [self, username, username, self];
     
             db.query(query, inserts, (err, results) => {
                 if (err) return next(err);

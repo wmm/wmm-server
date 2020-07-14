@@ -1,6 +1,5 @@
 const express = require('express');
 const userController = require('../controllers/friendController');
-const auth = require('../helpers/auth');
 const friendController = require('../controllers/friendController');
 
 const router = express.Router();

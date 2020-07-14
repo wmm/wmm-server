@@ -9,7 +9,7 @@ module.exports = {
 
         let inserts = [username, username, limit];
         let qOffset = '';
-        if (offset) {
+        if (offset != NaN) {
             qOffset = 'AND id < ?';
             inserts.splice(2, 0, offset);
         }

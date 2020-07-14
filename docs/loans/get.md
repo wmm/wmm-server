@@ -24,6 +24,7 @@ Gets an array of loans that the current user is part of.
 [
     {
         "id": 57,
+        "title": "Coffee",
         "sender": "john22",
         "reciever": "james34",
         "creator": "john22",

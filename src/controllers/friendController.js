@@ -60,8 +60,8 @@ module.exports = {
             }
 
             const status = result.user1 == self ? result.status : ((result.status&1)<<1)|((result.status&2)>>1);
-            if (status == 3) return res.status(200).json('You are already friends');
-            if (status == 1) return res.status(200).json('Friend request already sent');
+            if (status == 3) return res.status(400).json('You are already friends');
+            if (status == 1) return res.status(400).json('Friend request already sent');
 
             const query = 'UPDATE Relations SET status = status | ? WHERE id = ?';
             const inserts = [(result.user1 == self ? 1 : 2), result.id];

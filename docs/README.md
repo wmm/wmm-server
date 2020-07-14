@@ -18,7 +18,13 @@ These endpoints require an access token as a Bearer token in the request header
 
 * [Get your profile](users/profile/get.md) : `GET /users/profile/`
 + [Delete a refresh token](users/token/delete.md) : `DELETE /users/token/`
-* [Get relation with a user](users/relation/username.md) : `GET /users/relation/:username/`
+
+### Friend related
+
+* [Get your friends](friends/get.md) : `GET /friends/`
+* [Get incomming friend requests](friends/requests.md) : `GET /friends/requests/`
+* [Add a friend](friends/add/username.md) : `GET /friends/add/:username/`
+* [Remove a friend](friends/remove/username.md) : `GET /friends/remove/:username/`
 
 ### Loan related
 

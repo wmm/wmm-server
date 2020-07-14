@@ -14,6 +14,7 @@ Used to create a loan between the current user and another user.
 If `amount` is negative, the current user borrowed from `user`, otherwise the current user lent money to `user`. 
 ```json
 {
+    "title": "Coffee",
     "user": "john123",
     "amount": 12.3
 }

@@ -19,6 +19,7 @@ Gets the profile of the currently logged in user.
 {
     "username": "john123",
     "name": "John Robert",
+    "email": "john22@robert.com",
     "total_lent": 310.05,
     "total_borrowed": 295.99,
     "current_lent": 16.4,

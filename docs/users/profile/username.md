@@ -8,7 +8,7 @@ Gets a users profile and some stats.
 
 **Method** : `GET`
 
-**Auth required** : NO
+**Auth required** : Optional
 
 ## Success Response
 
@@ -23,6 +23,22 @@ Gets a users profile and some stats.
     "total_borrowed": 295.99,
     "current_lent": 16.4,
     "current_borrowed": 20.11
+}
+```
+
+**Logged-in content example** :
+```json
+{
+    "username": "john123",
+    "name": "John Robert",
+    "total_lent": 310.05,
+    "total_borrowed": 295.99,
+    "current_lent": 16.4,
+    "current_borrowed": 20.11,
+    "relation": {
+        "status": 3,
+        "amount": -2.22
+    }
 }
 ```
 

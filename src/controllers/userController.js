@@ -199,6 +199,23 @@ module.exports = {
 
             return res.status(200).json(result);
         });
+    },
+
+    search: function (req, res, next) {
+        let phrase = req.body.phrase;
+        if (!phrase) {
+            return res.status(400).json('Phrase missing');
+        }
+
+        phrase = `%${phrase}%`;
+        const query = 'SELECT username FROM Users WHERE (username LIKE ?) OR (name LIKE ?)'
+        const inserts = [phrase, phrase];
+
+        db.query(query, inserts, (err, results) => {
+            if (err) return next(err);
+
+            return res.status(200).json(results);
+        });
     }
 
 }

@@ -5,6 +5,7 @@
 * [Register](users/register.md) : `POST /users/register/`
 * [Login](users/login.md) : `POST /users/login/`
 + [Get a users profile](users/profile/username.md) : `GET /users/profile/:username/`
++ [Search for users](users/search/phrase.md) : `GET /users/search/:phrase/`
 
 ## Endpoints that require a Refresh Token
 These endpoints require a refresh token in the request body
@@ -30,5 +31,6 @@ These endpoints require an access token as a Bearer token in the request header
 
 * [Get your loans](loans/get.md) : `GET /loans/`
 * [Create a loan](loans/post.md) : `POST /loans/`
++ [Get a loan](loans/loanId/get.md) : `GET /loans/:loanId/`
 + [Confirm a loan](loans/loanId/confirm.md) : `PATCH /loans/:loanId/confirm`
 + [Reject a loan](loans/loanId/reject.md) : `PATCH /loans/:loanId/reject`

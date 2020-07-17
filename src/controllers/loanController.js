@@ -59,6 +59,27 @@ module.exports = {
         });
     },
 
+    get: function (req, res, next) {
+        const username = req.user.username;
+        const loanId = req.params.loanId;
+
+        const query = 'SELECT * FROM PopulatedLoans WHERE id = ?';
+        const inserts = [loanId];
+
+        db.query(query, inserts, (err, results) => {
+            if (err) return next(err);
+
+            const loan = results[0];
+            if (!loan) return res.status(400).json('Loan does not exist');
+
+            if (loan.sender != username && loan.reciever != username) {
+                return res.status(403).json('You can not access other peoples loans');
+            }
+
+            return res.status(200).json(loan);
+        });
+    },
+
     confirm: function (req, res, next) {
         const userId = req.user.id;
         const loanId = req.params.loanId;
@@ -66,12 +87,12 @@ module.exports = {
         const query = 'SELECT * FROM Loans WHERE id = ?';
         const inserts = [loanId];
 
-        db.query(query, inserts, (err, /** @type {Array} */ results) => {
+        db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            if (results.length === 0) return res.status(400).json('Loan does not exist');
-
             const loan = results[0];
+            if (!loan) return res.status(400).json('Loan does not exist');
+
             if (loan.sender_id != userId && loan.reciever_id != userId) {
                 return res.status(403).json('You can not access other peoples loans');
             }
@@ -98,12 +119,12 @@ module.exports = {
         const query = 'SELECT * FROM Loans WHERE id = ?';
         const inserts = [loanId];
 
-        db.query(query, inserts, (err, /** @type {Array} */ results) => {
+        db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            if (results.length === 0) return res.status(400).json('Loan does not exist');
-
             const loan = results[0];
+            if (!loan) return res.status(400).json('Loan does not exist');
+
             if (loan.sender_id != userId && loan.reciever_id != userId) {
                 return res.status(403).json('You can not access other peoples loans');
             }

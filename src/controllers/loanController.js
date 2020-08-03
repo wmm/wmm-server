@@ -24,7 +24,7 @@ module.exports = {
 
     create: function (req, res, next) {
         const self = req.user;
-        const title = req.title;
+        const title = req.body.title;
         const other = req.body.user;
         const amount_s = req.body.amount;
         if (!other || !amount_s) {

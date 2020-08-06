@@ -14,7 +14,7 @@ router.delete('/token', auth.requireLogin, userController.deleteRefreshToken);
 router.get('/profile', auth.requireLogin, userController.profileSelf);
 router.get('/profile/:username', auth.optionalLogin, userController.profile);
 
-router.get('/seatch/:phrase', userController.search);
+router.get('/search/:phrase', userController.search);
 
 
 module.exports = router;

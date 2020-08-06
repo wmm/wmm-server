@@ -214,7 +214,7 @@ module.exports = {
         db.query(query, inserts, (err, results) => {
             if (err) return next(err);
 
-            return res.status(200).json(results);
+            return res.status(200).json(results.map(u => u.username));
         });
     }
 

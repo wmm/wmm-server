@@ -202,7 +202,7 @@ module.exports = {
     },
 
     search: function (req, res, next) {
-        let phrase = req.body.phrase;
+        let phrase = req.params.phrase;
         if (!phrase) {
             return res.status(400).json('Phrase missing');
         }

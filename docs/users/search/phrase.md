@@ -17,7 +17,7 @@ Gets a list of usernames of users that partialy or fully match the phrase.
 **Content example** :
 ```json
 [
-    "jsonderulo"
+    "jsonderulo",
     "jsond12"
 ]
 ```

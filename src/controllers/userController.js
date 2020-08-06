@@ -109,7 +109,7 @@ module.exports = {
 
                 const result = results[0];
                 if (!result || result.user_id != data.userId) {
-                    return res.status(400).json('Token is no longer valid');
+                    return res.status(400).json('Token is not valid');
                 }
 
                 jwt.generateAccessToken(data.userId, data.username, (err, token) => {

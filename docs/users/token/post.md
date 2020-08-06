@@ -35,4 +35,4 @@ Used to get an access token.
 
 **Code** : `400 Bad Request`
 
-**Content** : `"Token is no longer valid"`
+**Content** : `"Token is not valid"`

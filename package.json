@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node ./src/server.js",
     "service": "sudo service mysql start",
-    "dev": "nodemon ./src/server.js"
+    "dev": "nodemon ./src/server.js",
+    "test": "mocha --exit"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
@@ -20,6 +21,9 @@
     "mysql": "^2.18.1"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.1.1",
     "nodemon": "^2.0.4"
   }
 }

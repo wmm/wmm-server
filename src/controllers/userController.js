@@ -147,7 +147,7 @@ module.exports = {
     },
 
     profile: function (req, res, next) {
-        const self = req.user.username;
+        const self = req.user?.username;
         const username = req.params.username;
         if (!username) {
             return res.status(400).json('Username missing');

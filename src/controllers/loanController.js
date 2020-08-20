@@ -31,8 +31,10 @@ module.exports = {
             return res.status(400).json('Missing field(s): user and amount required');
         }
 
-        const amount = parseFloat(amount_s).toFixed(2);
-        if (!amount || amount == 0) return res.status(400).json('Invalid field: amount');
+        let amount = parseFloat(amount_s);
+        if (!amount || amount.toFixed(2) == 0)
+            return res.status(400).json('Invalid field: amount');
+        amount = amount.toFixed(2);
 
         if (other === self.username) return res.status(400).json('Cannot create a loan with yourself');
         
@@ -99,7 +101,7 @@ module.exports = {
 
             if (loan.creator_id == userId) return res.status(400).json('You cannot confirm a loan you created');
 
-            if (loan.status != 0) return res.status(400).json('Loan already ' + loan.status == 1 ? 'confirmed' : 'rejected');
+            if (loan.status != 0) return res.status(400).json(`Loan already ${loan.status == 1 ? 'confirmed' : 'rejected'}`);
 
             const query = 'UPDATE Loans SET status = 1 WHERE id = ?';
             const inserts = [loanId];
@@ -129,7 +131,7 @@ module.exports = {
                 return res.status(403).json('You can not access other peoples loans');
             }
 
-            if (loan.status != 0) return res.status(400).json('Loan already ' + loan.status == 1 ? 'confirmed' : 'rejected');
+            if (loan.status != 0) return res.status(400).json(`Loan already ${loan.status == 1 ? 'confirmed' : 'rejected'}`);
 
             const query = 'UPDATE Loans SET status = -1 WHERE id = ?';
             const inserts = [loanId];

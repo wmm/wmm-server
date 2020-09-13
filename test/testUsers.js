@@ -297,18 +297,18 @@ describe('/users', () => {
                         });
                 });
 
-                // Invalid refresh token
-                //   it("Invalid refresh token", (done) => {
-                //     server
-                //       .post("/users/token")
-                //       .send({ refresh_token: "" })
-                //       .end((err, res) => {
-                //         res.should.have.status(400);
-                //         res.body.should.be.a("string");
-                //         res.body.should.be.equal("Token is no longer valid");
-                //         done();
-                //       });
-                //   });
+                //Malformed refresh token
+                it('Malformed refresh token', done => {
+                    server
+                        .post('/users/token')
+                        .send({ refresh_token: 'xD-123' })
+                        .end((err, res) => {
+                            res.should.have.status(401);
+                            res.body.should.be.a('string');
+                            res.body.should.be.equal('jwt malformed');
+                            done();
+                        });
+                });
             });
         });
 

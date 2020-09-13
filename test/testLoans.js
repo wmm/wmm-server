@@ -68,7 +68,7 @@ describe('/loans', () => {
     });
 
     /* CREATE 3 ACCOUNTS */
-    describe('Creating 2 accounts', () => {
+    describe('Creating 3 accounts', () => {
         // alice
         it('register alice', done => {
             server
@@ -110,7 +110,7 @@ describe('/loans', () => {
     });
 
     /* LOGIN */
-    describe('Log both accounts in', () => {
+    describe('Log all accounts in', () => {
         // alice
         it('login alice', done => {
             server

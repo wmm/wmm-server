@@ -269,91 +269,85 @@ describe('/users', () => {
     // TOKEN
     describe('Token', () => {
         describe('POST /users/token', () => {
-            describe('Successfull', () => {
-                // Valid refresh token
-                it('Valid refresh token', done => {
-                    server
-                        .post('/users/token')
-                        .send({ refresh_token: refresh_token })
-                        .end((err, res) => {
-                            res.should.have.status(200);
-                            res.body.should.be.a('object');
-                            access_token = res.body.access_token;
-                            done();
-                        });
-                });
+            // Valid refresh token
+            it('Valid refresh token', done => {
+                server
+                    .post('/users/token')
+                    .send({ refresh_token: refresh_token })
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        access_token = res.body.access_token;
+                        done();
+                    });
             });
-            describe('Fails', () => {
-                // Empty refresh token
-                it('Empty refresh token', done => {
-                    server
-                        .post('/users/token')
-                        .send({ refresh_token: '' })
-                        .end((err, res) => {
-                            res.should.have.status(400);
-                            res.body.should.be.a('string');
-                            res.body.should.be.equal('Refresh token required');
-                            done();
-                        });
-                });
 
-                //Malformed refresh token
-                it('Malformed refresh token', done => {
-                    server
-                        .post('/users/token')
-                        .send({ refresh_token: 'xD-123' })
-                        .end((err, res) => {
-                            res.should.have.status(401);
-                            res.body.should.be.a('string');
-                            res.body.should.be.equal('jwt malformed');
-                            done();
-                        });
-                });
+            // Empty refresh token
+            it('Empty refresh token - FAILS', done => {
+                server
+                    .post('/users/token')
+                    .send({ refresh_token: '' })
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('string');
+                        res.body.should.be.equal('Refresh token required');
+                        done();
+                    });
+            });
+
+            //Malformed refresh token
+            it('Malformed refresh token - FAILS', done => {
+                server
+                    .post('/users/token')
+                    .send({ refresh_token: 'xD-123' })
+                    .end((err, res) => {
+                        res.should.have.status(401);
+                        res.body.should.be.a('string');
+                        res.body.should.be.equal('jwt malformed');
+                        done();
+                    });
             });
         });
 
         describe('DELETE /users/token', () => {
-            describe('Successfull', () => {
-                // Valid refresh token
-                it('Valid refresh token', done => {
-                    server
-                        .delete('/users/token')
-                        .set('Authorization', `Bearer ${access_token}`)
-                        .send({ refresh_token: refresh_token })
-                        .end((err, res) => {
-                            res.should.have.status(200);
-                            res.body.should.be.a('string');
-                            res.body.should.be.equal('Token deleted');
-                            done();
-                        });
-                });
+            // Valid refresh token
+            it('Valid refresh token', done => {
+                server
+                    .delete('/users/token')
+                    .set('Authorization', `Bearer ${access_token}`)
+                    .send({ refresh_token: refresh_token })
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('string');
+                        res.body.should.be.equal('Token deleted');
+                        done();
+                    });
             });
-            describe('Fails', () => {
-                // Missing access token
-                it('Missing access token', done => {
-                    server
-                        .delete('/users/token')
-                        .send({ refresh_token: '' })
-                        .end((err, res) => {
-                            res.should.have.status(401);
-                            res.body.should.be.a('string');
-                            res.body.should.be.equal('Login required');
-                            done();
-                        });
-                });
-                // Empty refresh token
-                it('Empty refresh token', done => {
-                    server
-                        .delete('/users/token')
-                        .send({ refresh_token: '' })
-                        .set('Authorization', `Bearer ${access_token}`)
-                        .end((err, res) => {
-                            res.should.have.status(400);
-                            res.body.should.be.a('string');
-                            res.body.should.be.equal('Refresh token missing');
-                            done();
-                        });
-                });
+
+            // Missing access token
+            it('Missing access token - FAILS', done => {
+                server
+                    .delete('/users/token')
+                    .send({ refresh_token: '' })
+                    .end((err, res) => {
+                        res.should.have.status(401);
+                        res.body.should.be.a('string');
+                        res.body.should.be.equal('Login required');
+                        done();
+                    });
+            });
+            // Empty refresh token
+            it('Empty refresh token - FAILS', done => {
+                server
+                    .delete('/users/token')
+                    .send({ refresh_token: '' })
+                    .set('Authorization', `Bearer ${access_token}`)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('string');
+                        res.body.should.be.equal('Refresh token missing');
+                        done();
+                    });
             });
         });
     });
@@ -381,46 +375,42 @@ describe('/users', () => {
             });
         });
         describe('GET /users/profile/:username', () => {
-            describe('Successfull', () => {
-                // Guest
-                it('Guest', done => {
-                    server.get(`/users/profile/${alice.username}`).end((err, res) => {
-                        res.should.have.status(200);
-                        res.body.should.be.a('object');
-                        res.body.should.have.property('username');
-                        res.body.should.have.property('name');
-                        res.body.should.have.property('total_lent');
-                        res.body.should.have.property('total_borrowed');
-                        res.body.should.have.property('current_lent');
-                        res.body.should.have.property('current_borrowed');
-                        done();
-                    });
+            // Guest
+            it('As guest', done => {
+                server.get(`/users/profile/${alice.username}`).end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('username');
+                    res.body.should.have.property('name');
+                    res.body.should.have.property('total_lent');
+                    res.body.should.have.property('total_borrowed');
+                    res.body.should.have.property('current_lent');
+                    res.body.should.have.property('current_borrowed');
+                    done();
                 });
-                // Logged in
-                it('Logged in', done => {
-                    server.get(`/users/profile/${alice.username}`).end((err, res) => {
-                        res.should.have.status(200);
-                        res.body.should.be.a('object');
-                        res.body.should.have.property('username');
-                        res.body.should.have.property('name');
-                        res.body.should.have.property('total_lent');
-                        res.body.should.have.property('total_borrowed');
-                        res.body.should.have.property('current_lent');
-                        res.body.should.have.property('current_borrowed');
-                        done();
-                    });
+            });
+            // Logged in
+            it('Logged in', done => {
+                server.get(`/users/profile/${alice.username}`).end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('username');
+                    res.body.should.have.property('name');
+                    res.body.should.have.property('total_lent');
+                    res.body.should.have.property('total_borrowed');
+                    res.body.should.have.property('current_lent');
+                    res.body.should.have.property('current_borrowed');
+                    done();
                 });
             });
 
-            describe('Fails', () => {
-                // User doesn't exist
-                it("User doesn't exist", done => {
-                    server.get(`/users/profile/xD`).end((err, res) => {
-                        res.should.have.status(404);
-                        res.body.should.be.a('string');
-                        res.body.should.be.equal('User not found');
-                        done();
-                    });
+            // User doesn't exist
+            it("User doesn't exist - FAILS", done => {
+                server.get(`/users/profile/xD`).end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.be.a('string');
+                    res.body.should.be.equal('User not found');
+                    done();
                 });
             });
         });

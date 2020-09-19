@@ -115,15 +115,15 @@
 -   alice sends a loan request to a user that does't exist &rarr; _FAILS_
 -   bob checks his loan list
 -   bob accepts the loan request from alice
--   bob trys to accept the loan again &rarr; _FAILS_
+-   bob tries to accept the loan again &rarr; _FAILS_
 -   bob sends a loan request to alice
 -   bob sends a loan request to Charlie
--   bob trys to accept his own loan request &rarr; _FAILS_
--   bob trys to accept a loan with an invalid id &rarr; _FAILS_
+-   bob tries to accept his own loan request &rarr; _FAILS_
+-   bob tries to accept a loan with an invalid id &rarr; _FAILS_
 -   alice rejects the loan request from bob
--   alice trys to reject the loan again &rarr; _FAILS_
--   Alice trys to reject a loan that bob send to charlie &rarr; _FAILS_
--   alice trys to accept a loan that bob send to charlie &rarr; _FAILS_
--   alice trys to reject a loan with an invalid id &rarr; _FAILS_
+-   alice tries to reject the loan again &rarr; _FAILS_
+-   Alice tries to reject a loan that bob send to charlie &rarr; _FAILS_
+-   alice tries to accept a loan that bob send to charlie &rarr; _FAILS_
+-   alice tries to reject a loan with an invalid id &rarr; _FAILS_
 -   alice sends a loan request to bob
 -   alice cancels the loan request
